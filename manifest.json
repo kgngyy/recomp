@@ -1,1 +1,16 @@
-{"name":"Рекомпозиция тела · 48 недель","short_name":"Рекомпозиция","start_url":"./index.html","display":"standalone","background_color":"#22303d","theme_color":"#22303d","icons":[{"src":"icon-192.png","sizes":"192x192","type":"image/png"},{"src":"icon-512.png","sizes":"512x512","type":"image/png"}]}
+{
+  "name": "Рекомпозиция тела · 48 недель",
+  "short_name": "Рекомпозиция",
+  "id": "./",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "lang": "ru",
+  "description": "Персональный бьюти-паспорт: макияж, уход за кожей при гиперкератозе, схемы причёсок и укладок.",
+  "background_color": "#22303d",
+  "theme_color": "#22303d",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

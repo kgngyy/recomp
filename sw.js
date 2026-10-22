@@ -1,4 +1,64 @@
-const C='recomp-v4';self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(['./','index.html','manifest.json','icon-192.png'])));self.skipWaiting()});
-self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return k!==C}).map(function(k){return caches.delete(k)}))}).then(function(){return clients.claim()}))});
-self.addEventListener('fetch',e=>{if(e.request.method!='GET'||new URL(e.request.url).origin!=location.origin)return;e.respondWith(fetch(e.request).then(r=>{const k=r.clone();caches.open(C).then(c=>c.put(e.request,k));return r}).catch(()=>caches.match(e.request)))});
-self.addEventListener('notificationclick',e=>{e.notification.close();e.waitUntil(clients.openWindow('./#app'))});
+/* Service Worker: recomp-v6 */
+const CACHE = 'recomp-v6';
+const ASSETS = [
+  './',
+  'index.html',
+  'manifest.json',
+  'icon-192.png',
+  'icon-512.png'
+];
+
+self.addEventListener('install', function (event) {
+  event.waitUntil(
+    caches.open(CACHE)
+      .then(function (cache) { return cache.addAll(ASSETS); })
+      .then(function () { return self.skipWaiting(); })
+  );
+});
+
+self.addEventListener('activate', function (event) {
+  event.waitUntil(
+    caches.keys().then(function (keys) {
+      return Promise.all(
+        keys.filter(function (key) { return key !== CACHE; })
+            .map(function (key) { return caches.delete(key); })
+      );
+    }).then(function () { return self.clients.claim(); })
+  );
+});
+
+self.addEventListener('fetch', function (event) {
+  if (event.request.method !== 'GET') { return; }
+  event.respondWith(
+    caches.match(event.request).then(function (cached) {
+      if (cached) { return cached; }
+      return fetch(event.request).then(function (response) {
+        if (!response || response.status !== 200 || response.type === 'opaque') {
+          return response;
+        }
+        const clone = response.clone();
+        caches.open(CACHE).then(function (cache) {
+          cache.put(event.request, clone);
+        });
+        return response;
+      }).catch(function () {
+        if (event.request.mode === 'navigate') {
+          return caches.match('./index.html');
+        }
+      });
+    })
+  );
+});
+
+self.addEventListener('notificationclick', function (event) {
+  event.notification.close();
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (list) {
+      for (let i = 0; i < list.length; i++) {
+        const c = list[i];
+        if ('focus' in c) { c.navigate('./#app'); return c.focus(); }
+      }
+      if (self.clients.openWindow) { return self.clients.openWindow('./#app'); }
+    })
+  );
+});
