@@ -1,0 +1,105 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Предпросмотр · Рекомпозиция v6</title>
+<style>
+:root{--bg:#F7F7F5;--surface:#fff;--ink:#0A0A0A;--muted:#5F5F58;--line:#E7E7E2;--line-2:#D4D4CD;--accent:#FF4A22;--accent-ink:#C93A16;--accent-soft:#FFF0EB;--serif:'Iowan Old Style',Georgia,serif;--sans:-apple-system,'Segoe UI',Roboto,sans-serif}
+*{box-sizing:border-box}body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.55}
+.wrap{max-width:960px;margin:0 auto;padding:28px 18px 80px}
+.hero{text-align:center;padding:48px 20px 36px}
+.hero .k{font-size:12px;letter-spacing:.24em;color:var(--accent-ink);font-weight:700;text-transform:uppercase}
+.hero h1{font-family:var(--serif);font-size:44px;margin:12px 0 8px;letter-spacing:-.02em}
+.hero p{color:var(--muted);max-width:560px;margin:0 auto}
+h1,h2,h3{font-family:var(--serif);letter-spacing:-.015em}
+.page{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px 28px;margin:0 0 16px}
+.ux-toggle{cursor:pointer;user-select:none;display:flex;align-items:center;gap:8px;font-family:var(--serif);font-size:22px;margin:0}
+.ux-toggle::after{content:'';margin-left:auto;width:9px;height:9px;border-right:1.6px solid #9B9B93;border-bottom:1.6px solid #9B9B93;transform:rotate(45deg) translateY(-2px);transition:.25s}
+[data-ux]:not(.open)>.ux-body{display:none}
+[data-ux]:not(.open) .ux-toggle::after{transform:rotate(-45deg)}
+.ux-hot>.ux-toggle::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--accent);flex:none}
+.ux-cold{background:#FAFAF7}
+.ux-chip{font-size:11px;font-family:var(--sans);font-weight:600;color:var(--accent-ink);background:var(--accent-soft);border-radius:999px;padding:3px 10px}
+.card{border:1px solid var(--line);border-radius:12px;padding:16px;margin:10px 0}
+.ux-block{border:1px solid var(--line);border-radius:12px;margin:10px 0}
+.ux-block summary{cursor:pointer;font-family:var(--serif);font-size:17px;padding:12px 16px;list-style:none}
+.ux-block summary::before{content:'+';color:var(--accent);font-weight:700;margin-right:10px;display:inline-block}
+.ux-block[open] summary::before{transform:rotate(45deg)}
+.ux-block-body{padding:2px 16px 14px}
+button{font:inherit;font-size:13px;padding:8px 16px;border:1px solid var(--line-2);border-radius:999px;background:#fff;cursor:pointer}
+button:hover{border-color:var(--ink)}button.p{background:var(--accent);color:#fff;border:none}
+#low-zone{border-top:1px solid var(--line-2);margin-top:30px;padding-top:14px}
+#low-zone::before{content:'Реже используемое';font-family:var(--serif);color:var(--muted);font-size:18px;display:block;margin-bottom:10px}
+#dash{position:sticky;top:0;z-index:9;background:var(--ink);color:#fff;border-radius:12px;padding:12px 16px;margin:0 0 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px}
+#dash b{color:#FF8A70}
+</style></head><body>
+<div class="wrap">
+  <div class="hero"><div class="k">Годовое руководство</div>
+    <h1>Рекомпозиция тела</h1>
+    <p>Чистый минимализм, serif-заголовки, тонкие рамки и адаптивный движок — кликните по блокам, чтобы они «разогрелись», и нажмите «Следующий визит», чтобы увидеть деградацию.</p></div>
+  <div id="dash"></div>
+  <section class="page" id="today" data-ux="today" data-ux-pin>
+    <h1 class="ux-toggle" data-ux-toggle>Сегодня · неделя 1</h1>
+    <div class="ux-body">
+      <div class="card"><b>Подъём</b> 06:30 · коллаген + вода &nbsp; <b>Завтрак</b> овсянка + D3/Омега &nbsp; <b>Прогулка</b> 20 мин</div>
+      <div class="card"><b>Силовая С-А (низ)</b> — 2×10 повторов, вечер 20:00</div>
+    </div>
+  </section>
+  <section class="page" id="macro1" data-ux="macro1">
+    <h1 class="ux-toggle" data-ux-toggle>Макроцикл 1 · Активация</h1>
+    <div class="ux-body">
+      <details class="ux-block" open><summary>Блок 1 · Расписание</summary><div class="ux-block-body">ДОМ / ОФИС недели · бассейн в среду домашней недели.</div></details>
+      <details class="ux-block"><summary>Блок 2 · Питание</summary><div class="ux-block-body">Меню вариант А · система порций · список покупок.</div></details>
+      <details class="ux-block"><summary>Блок 3 · Тренировки</summary><div class="ux-block-body">Приседания, тяги, отжимания, ангелы, вакуум.</div></details>
+    </div>
+  </section>
+  <section class="page" id="macro2" data-ux="macro2">
+    <h1 class="ux-toggle" data-ux-toggle>Макроцикл 2 · Интенсификация</h1>
+    <div class="ux-body"><div class="card">Резинки, пилинги, коррекция осанки.</div></div>
+  </section>
+  <section class="page" id="ref" data-ux="ref-cooking">
+    <h1 class="ux-toggle" data-ux-toggle>Справочник · Кулинария</h1>
+    <div class="ux-body"><div class="card">Гречка 15–18 мин · рис 12–15 · рыба на пару 12–15.</div></div>
+  </section>
+  <aside id="low-zone"></aside>
+</div>
+<script>
+(function(){
+  var NS='prev-ux';var data=JSON.parse(localStorage.getItem(NS)||'{}');
+  var secs=[].slice.call(document.querySelectorAll('[data-ux]'));
+  function rec(k){data[k]=data[k]||{c:0,e:0,v:0,s:0};return data[k]}
+  function score(r){return r.c*6+r.e*4+r.v}
+  function save(){localStorage.setItem(NS,JSON.stringify(data))}
+  function isOpen(s){return s.classList.contains('open')}
+  function setOpen(s,o){s.classList.toggle('open',o)}
+  function key(s){return s.getAttribute('data-ux')}
+  function chip(s,t){var h=s.querySelector('.ux-toggle'),c=h.querySelector('.ux-chip');
+    if(!t){if(c)c.remove();return} if(!c){c=document.createElement('span');c.className='ux-chip';h.appendChild(c)} c.textContent=t}
+  function apply(){
+    var lz=document.getElementById('low-zone');
+    secs.forEach(function(s){
+      var pinned=s.hasAttribute('data-ux-pin')||s.id==='macro1';
+      var r=rec(key(s)),sc=score(r);
+      if(pinned||(sc>=12&&r.c>0)){s.classList.add('ux-hot');s.classList.remove('ux-cold');chip(s,'');setOpen(s,true);if(s.parentNode===lz){document.querySelector('.wrap').insertBefore(s,lz)}return}
+      s.classList.remove('ux-hot');
+      if(r.s>=4&&(r.c+r.e)===0&&lz&&s.parentNode!==lz){lz.appendChild(s);s.classList.add('ux-cold');chip(s,'Перенесено вниз');setOpen(s,false)}
+      else if(r.s>=2&&(r.c+r.e)===0){s.classList.add('ux-cold');chip(s,'Показать детали');setOpen(s,false)}
+      else{s.classList.remove('ux-cold');chip(s,'')}
+    })
+  }
+  function dash(){
+    var el=document.getElementById('dash');
+    var rows=secs.map(function(s){var r=rec(key(s));return '<span>'+key(s)+': <b>'+score(r)+'</b> (клики '+r.c+', визиты '+r.s+')</span>'}).join(' · ');
+    el.innerHTML='<button class="p" id="nv">Следующий визит</button><button id="rs">Сброс</button><span style="color:#9aa">'+rows+'</span>';
+    document.getElementById('nv').onclick=function(){secs.forEach(function(s){rec(key(s)).s+=1});save();apply();dash()};
+    document.getElementById('rs').onclick=function(){localStorage.removeItem(NS);data={};secs.forEach(function(s){s.classList.remove('ux-cold','ux-hot');chip(s,'');setOpen(s,true);var lz=document.getElementById('low-zone');if(s.parentNode===lz)document.querySelector('.wrap').insertBefore(s,lz)});apply();dash()};
+  }
+  secs.forEach(function(s){s.classList.add('open');
+    s.addEventListener('click',function(e){
+      if(e.target.closest('.ux-toggle')){var o=!isOpen(s);setOpen(s,o);rec(key(s)).e+=1;if(o)chip(s,'')}
+      else if(!e.target.closest('.ux-block')){rec(key(s)).c+=1}
+      save();apply();dash()
+    })
+  });
+  apply();dash();
+})();
+</script>
+</body></html>
