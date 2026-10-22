@@ -30,37 +30,35 @@ button:hover{border-color:var(--ink)}button.p{background:var(--accent);color:#ff
 #low-zone::before{content:'Реже используемое';font-family:var(--serif);color:var(--muted);font-size:18px;display:block;margin-bottom:10px}
 #dash{position:sticky;top:0;z-index:9;background:var(--ink);color:#fff;border-radius:12px;padding:12px 16px;margin:0 0 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px}
 #dash b{color:#FF8A70}
+#scrollTop{position:fixed;right:26px;bottom:26px;width:46px;height:46px;border-radius:50%;background:var(--ink);color:#fff;border:none;font-size:20px;cursor:pointer;opacity:0;visibility:hidden;transition:.25s;z-index:60}
+#scrollTop.show{opacity:1;visibility:visible}
 </style></head><body>
 <div class="wrap">
-  <div class="hero"><div class="k">Годовое руководство</div>
-    <h1>Рекомпозиция тела</h1>
-    <p>Чистый минимализм, serif-заголовки, тонкие рамки и адаптивный движок — кликните по блокам, чтобы они «разогрелись», и нажмите «Следующий визит», чтобы увидеть деградацию.</p></div>
+  <div class="hero"><div class="k">Годовое руководство</div><h1>Рекомпозиция тела</h1>
+  <p>Чистый минимализм, serif-заголовки и адаптивный движок. Кнопка «↑» возвращает наверх.</p></div>
   <div id="dash"></div>
   <section class="page" id="today" data-ux="today" data-ux-pin>
     <h1 class="ux-toggle" data-ux-toggle>Сегодня · неделя 1</h1>
-    <div class="ux-body">
-      <div class="card"><b>Подъём</b> 06:30 · коллаген + вода &nbsp; <b>Завтрак</b> овсянка + D3/Омега &nbsp; <b>Прогулка</b> 20 мин</div>
-      <div class="card"><b>Силовая С-А (низ)</b> — 2×10 повторов, вечер 20:00</div>
-    </div>
+    <div class="ux-body"><div class="card"><b>Подъём</b> 06:30 · <b>Завтрак</b> овсянка · <b>Прогулка</b> 20 мин</div></div>
   </section>
   <section class="page" id="macro1" data-ux="macro1">
     <h1 class="ux-toggle" data-ux-toggle>Макроцикл 1 · Активация</h1>
     <div class="ux-body">
-      <details class="ux-block" open><summary>Блок 1 · Расписание</summary><div class="ux-block-body">ДОМ / ОФИС недели · бассейн в среду домашней недели.</div></details>
-      <details class="ux-block"><summary>Блок 2 · Питание</summary><div class="ux-block-body">Меню вариант А · система порций · список покупок.</div></details>
-      <details class="ux-block"><summary>Блок 3 · Тренировки</summary><div class="ux-block-body">Приседания, тяги, отжимания, ангелы, вакуум.</div></details>
+      <details class="ux-block" open><summary>Блок 1 · Расписание</summary><div class="ux-block-body">ДОМ / ОФИС · бассейн в среду.</div></details>
+      <details class="ux-block"><summary>Блок 2 · Питание</summary><div class="ux-block-body">Меню А · порции · покупки.</div></details>
     </div>
   </section>
   <section class="page" id="macro2" data-ux="macro2">
     <h1 class="ux-toggle" data-ux-toggle>Макроцикл 2 · Интенсификация</h1>
-    <div class="ux-body"><div class="card">Резинки, пилинги, коррекция осанки.</div></div>
+    <div class="ux-body"><div class="card">Резинки, пилинги, осанка.</div></div>
   </section>
   <section class="page" id="ref" data-ux="ref-cooking">
     <h1 class="ux-toggle" data-ux-toggle>Справочник · Кулинария</h1>
-    <div class="ux-body"><div class="card">Гречка 15–18 мин · рис 12–15 · рыба на пару 12–15.</div></div>
+    <div class="ux-body"><div class="card">Гречка 15–18 мин · рис 12–15.</div></div>
   </section>
   <aside id="low-zone"></aside>
 </div>
+<button id="scrollTop" aria-label="Наверх">↑</button>
 <script>
 (function(){
   var NS='prev-ux';var data=JSON.parse(localStorage.getItem(NS)||'{}');
@@ -71,8 +69,7 @@ button:hover{border-color:var(--ink)}button.p{background:var(--accent);color:#ff
   function isOpen(s){return s.classList.contains('open')}
   function setOpen(s,o){s.classList.toggle('open',o)}
   function key(s){return s.getAttribute('data-ux')}
-  function chip(s,t){var h=s.querySelector('.ux-toggle'),c=h.querySelector('.ux-chip');
-    if(!t){if(c)c.remove();return} if(!c){c=document.createElement('span');c.className='ux-chip';h.appendChild(c)} c.textContent=t}
+  function chip(s,t){var h=s.querySelector('.ux-toggle'),c=h.querySelector('.ux-chip');if(!t){if(c)c.remove();return}if(!c){c=document.createElement('span');c.className='ux-chip';h.appendChild(c)}c.textContent=t}
   function apply(){
     var lz=document.getElementById('low-zone');
     secs.forEach(function(s){
@@ -100,6 +97,9 @@ button:hover{border-color:var(--ink)}button.p{background:var(--accent);color:#ff
     })
   });
   apply();dash();
+  var st=document.getElementById('scrollTop');
+  window.addEventListener('scroll',function(){st.classList.toggle('show',(window.scrollY||document.documentElement.scrollTop)>600);});
+  st.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});
 })();
 </script>
 </body></html>
