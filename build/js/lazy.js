@@ -1,4 +1,5 @@
-/* lazy.js — ленивая загрузка макроциклов и справочников */
+/* lazy.js — ленивая загрузка макроциклов и справочников.
+ * Контент вставляется как innerHTML — без вложенной секции (макроциклы читаемы). */
 (function () {
   'use strict';
   var placeholders = [].slice.call(document.querySelectorAll('.ux-lazy[data-src]'));
@@ -10,7 +11,9 @@
     return fetch(el.getAttribute('data-src'))
       .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
       .then(function (html) {
-        el.innerHTML = html;
+        var tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        el.innerHTML = tmp.innerHTML;
         el.classList.remove('ux-lazy');
         el.removeAttribute('data-src');
         hydrate();
