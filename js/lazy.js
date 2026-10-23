@@ -26,6 +26,8 @@
         node.removeAttribute('aria-busy');
         delete pending[id];
         document.dispatchEvent(new CustomEvent('lazy:loaded', { detail: { id: id } }));
+        // дать браузеру пересчитать layout перед тем, как резолвить промис
+        return new Promise(function (r) { requestAnimationFrame(function () { r(); }); });
       })
       .catch(function () {
         delete pending[id];
