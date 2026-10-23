@@ -35,13 +35,20 @@
   }
 
   function go(id, smooth) {
-    var sid = window.Lazy.sectionFor(id);
-    Promise.resolve(sid && window.Lazy.load(sid)).then(function () {
-      var target = document.getElementById(id);
-      if (!target) return;
-      openAncestors(target);
-      target.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' 
+  var sid = window.Lazy.sectionFor(id);
+  Promise.resolve(sid && window.Lazy.load(sid)).then(function () {
+    var target = document.getElementById(id);
+    if (!target) return;
+    openAncestors(target);
+    target.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
+    requestAnimationFrame(function () {
+      var top = target.getBoundingClientRect().top;
+      if (Math.abs(top) > 40) {           // уехали — дотянуть мгновенно
+        target.scrollIntoView({ behavior: 'auto', block: 'start' });
+      }
     });
+  });
+}
       // страховка: если layout ещё «достраивался», дотянем после перерисовки
       requestAnimationFrame(function () {
         var r = target.getBoundingClientRect();
@@ -55,14 +62,17 @@
     }
 
   document.addEventListener('click', function (e) {
-    var a = e.target.closest && e.target.closest('a[href^="#"]');
-    if (!a || a.getAttribute('href').length < 2) return;
-    var id = decodeURIComponent(a.getAttribute('href').slice(1));
-    e.preventDefault();
-    try { history.pushState(null, '', '#' + id); } catch (err) { /* file:// */ }
-    setMenu(false);
-    go(id, true);
+  var a = e.target.closest && e.target.closest('a[href^="#"]');
+  if (!a || a.getAttribute('href').length < 2) return;
+  var id = decodeURIComponent(a.getAttribute('href').slice(1));
+  e.preventDefault();
+  try { history.pushState(null, '', '#' + id); } catch (err) { }
+  setMenu(false);
+  // дать браузеру закрыть меню/scrim и пересчитать layout, затем скроллить
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () { go(id, true); });
   });
+});
   window.addEventListener('popstate', function () { if (location.hash.length > 1) go(decodeURIComponent(location.hash.slice(1)), false); });
   if (location.hash.length > 1) window.addEventListener('load', function () { go(decodeURIComponent(location.hash.slice(1)), false); });
 
