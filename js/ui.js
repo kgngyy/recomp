@@ -68,6 +68,7 @@
   e.preventDefault();
   try { history.pushState(null, '', '#' + id); } catch (err) { }
   setMenu(false);
+    setTimeout(function () { go(id, true); }, 50);
   // дать браузеру закрыть меню/scrim и пересчитать layout, затем скроллить
   requestAnimationFrame(function () {
     requestAnimationFrame(function () { go(id, true); });
