@@ -75,6 +75,9 @@
 
   /* Старт: грузим макроцикл текущей недели (и раздел из адреса), затем запускаем приложение */
   var first = ['macro' + window.Recomp.getCurrentMacro()];
+  ['ref-cooking','ref-exercises','ref-pool','ref-care','ref-beauty'].forEach(function (id) {
+    if (first.indexOf(id) < 0) first.push(id);
+  });
   var hashTarget = sectionFor(decodeURIComponent(location.hash.slice(1)));
   if (hashTarget && first.indexOf(hashTarget) < 0) first.push(hashTarget);
 
