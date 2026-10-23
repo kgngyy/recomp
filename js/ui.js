@@ -40,13 +40,20 @@
     var target = document.getElementById(id);
     if (!target) return;
     openAncestors(target);
+
     target.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
-    requestAnimationFrame(function () {
-      var top = target.getBoundingClientRect().top;
-      if (Math.abs(top) > 40) {           // уехали — дотянуть мгновенно
-        target.scrollIntoView({ behavior: 'auto', block: 'start' });
-      }
-    });
+
+    // страховка: если smooth «застрял» — дотянуть мгновенно
+    if (smooth) {
+      var tries = 0;
+      var check = function () {
+        var top = target.getBoundingClientRect().top;
+        // считаем «доехали», если верх секции в пределах ±80px от верха вьюпорта
+        if (Math.abs(top) <= 80 || tries++ > 8) return;
+        setTimeout(check, 120);
+      };
+      setTimeout(check, 300);
+    }
   });
 }
       // страховка: если layout ещё «достраивался», дотянем после перерисовки
