@@ -40,9 +40,19 @@
       var target = document.getElementById(id);
       if (!target) return;
       openAncestors(target);
-      target.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
+      target.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' 
     });
-  }
+      // страховка: если layout ещё «достраивался», дотянем после перерисовки
+      requestAnimationFrame(function () {
+        var r = target.getBoundingClientRect();
+        if (r.height < 8) return;                 // секция всё ещё пустая — не трогаем
+        var delta = r.top;                        // если уехали от цели > 40px
+        if (Math.abs(delta) > 40) {
+          target.scrollIntoView({ behavior: 'auto', block: 'start' });
+          }
+        });
+      });
+    }
 
   document.addEventListener('click', function (e) {
     var a = e.target.closest && e.target.closest('a[href^="#"]');
