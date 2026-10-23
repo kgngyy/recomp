@@ -1,70 +1,83 @@
-/* lazy.js — ленивая загрузка макроциклов и справочников.
- * Контент вставляется как innerHTML — без вложенной секции (макроциклы читаемы). */
+/* Ленивая подгрузка макроциклов и справочников из content/*.html.
+ * Публичный API: Lazy.load(id | [id]) -> Promise, Lazy.sectionFor(anchorId) -> id | null.
+ * После вставки секции генерируется событие `lazy:loaded` ({detail: {id}}). */
 (function () {
   'use strict';
-  var placeholders = [].slice.call(document.querySelectorAll('.ux-lazy[data-src]'));
-  if (!placeholders.length) { bootIfReady(); return; }
-  var loaded = {};
-  function load(el) {
-    if (loaded[el.id]) return Promise.resolve();
-    loaded[el.id] = true;
-    return fetch(el.getAttribute('data-src'))
-      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
-      .then(function (html) {
-        var tmp = document.createElement('div');
-        tmp.innerHTML = html;
-        el.innerHTML = tmp.innerHTML;
-        el.classList.remove('ux-lazy');
-        el.removeAttribute('data-src');
-        hydrate();
-        document.dispatchEvent(new CustomEvent('ux:loaded', { detail: { el: el } }));
-        return html;
+
+  var pending = {};
+
+  function el(id) { return document.getElementById(id); }
+
+  function load(id) {
+    var node = el(id);
+    if (!node || !node.hasAttribute('data-src')) return Promise.resolve();
+    if (pending[id]) return pending[id];
+
+    delete node.dataset.failed;
+    pending[id] = fetch(node.getAttribute('data-src'))
+      .then(function (r) {
+        if (!r.ok) throw new Error(r.status);
+        return r.text();
       })
-      .catch(function () { loaded[el.id] = false; });
+      .then(function (html) {
+        node.innerHTML = html;
+        node.classList.remove('lazy');
+        node.removeAttribute('data-src');
+        node.removeAttribute('aria-busy');
+        delete pending[id];
+        document.dispatchEvent(new CustomEvent('lazy:loaded', { detail: { id: id } }));
+      })
+      .catch(function () {
+        delete pending[id];
+        node.dataset.failed = '1';
+        node.innerHTML = '<p class="lazy-note">Не удалось загрузить раздел. ' +
+          '<button type="button" data-retry="' + id + '">Повторить</button></p>';
+      });
+    return pending[id];
   }
-  function hydrate() {
-    try {
-      if (window.Recomp && Recomp.wkScores) Recomp.wkScores();
-      if (window.Recomp && Recomp.restoreStatic) Recomp.restoreStatic();
-    } catch (e) {}
+
+  /* id якоря (macro3-home, ref-pool …) -> id секции, если она ещё не загружена */
+  function sectionFor(anchorId) {
+    if (!anchorId) return null;
+    var m = anchorId.match(/^(macro\d+)(?:-|$)/);
+    var sid = m ? m[1] : anchorId;
+    var node = el(sid);
+    return node && node.hasAttribute('data-src') ? sid : null;
   }
-  function byId(id) {
-    for (var i = 0; i < placeholders.length; i++) if (placeholders[i].id === id) return placeholders[i];
-    return null;
-  }
-  function eager() {
-    var cur = 1;
-    try { cur = (window.Recomp && Recomp.getCurrentMacro) ? Recomp.getCurrentMacro() : 1; } catch (e) {}
-    var ids = [];
-    for (var m = cur - 2; m <= cur; m++) if (m >= 1 && m <= 12) ids.push('macro' + m);
-    return Promise.all(ids.map(function (id) { var el = byId(id); return el ? load(el) : Promise.resolve(); }))
-      .then(function () { bootIfReady(); });
-  }
-  function bootIfReady() {
-    if (window.__recompBooted) return;
-    window.__recompBooted = true;
-    if (window.Recomp && Recomp.boot) Recomp.boot();
-  }
+
+  window.Lazy = {
+    load: function (ids) { return Promise.all([].concat(ids).map(load)); },
+    sectionFor: sectionFor
+  };
+
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest && e.target.closest('[data-retry]');
+    if (!btn) return;
+    var id = btn.getAttribute('data-retry');
+    el(id).innerHTML = '<p class="lazy-note">Загрузка…</p>';
+    load(id);
+  });
+
+  /* Остальные секции подгружаем заранее, когда пользователь подходит к ним ближе чем на ~1 экран */
   function observe() {
     if (!('IntersectionObserver' in window)) return;
     var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) { if (en.isIntersecting && en.target.getAttribute('data-src')) load(en.target); });
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        io.unobserve(en.target);
+        if (!en.target.dataset.failed) load(en.target.id);
+      });
     }, { rootMargin: '900px 0px' });
-    placeholders.forEach(function (el) { if (el.getAttribute('data-src')) io.observe(el); });
+    [].forEach.call(document.querySelectorAll('.lazy[data-src]'), function (n) { io.observe(n); });
   }
-  document.addEventListener('click', function (ev) {
-    var a = ev.target.closest ? ev.target.closest('a[href^="#"]') : null;
-    if (!a) return;
-    var id = a.getAttribute('href').slice(1);
-    var sec = document.getElementById(id);
-    if (sec && sec.getAttribute('data-src')) load(sec);
-    var m = id.match(/^(macro\d+)-/);
-    if (m) { var p = byId(m[1]); if (p && p.getAttribute('data-src')) load(p); }
+
+  /* Старт: грузим макроцикл текущей недели (и раздел из адреса), затем запускаем приложение */
+  var first = ['macro' + window.Recomp.getCurrentMacro()];
+  var hashTarget = sectionFor(decodeURIComponent(location.hash.slice(1)));
+  if (hashTarget && first.indexOf(hashTarget) < 0) first.push(hashTarget);
+
+  window.Lazy.load(first).then(function () {
+    window.Recomp.boot();
+    observe();
   });
-  window.addEventListener('hashchange', function () {
-    var id = location.hash.slice(1);
-    var el = document.getElementById(id);
-    if (el && el.getAttribute && el.getAttribute('data-src')) load(el);
-  });
-  eager().then(observe);
 })();

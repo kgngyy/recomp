@@ -1,15 +1,17 @@
 {
   "name": "Рекомпозиция тела · годовое руководство",
   "short_name": "Рекомпозиция",
+  "description": "48 недель, 12 макроциклов: питание, тренировки, уход и ежедневный чек-лист.",
   "lang": "ru",
-  "id": "./index.html",
-  "start_url": "./index.html",
+  "id": "./",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#F7F7F5",
+  "background_color": "#F6F5F2",
   "theme_color": "#0A0A0A",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }
