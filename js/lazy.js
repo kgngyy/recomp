@@ -70,8 +70,10 @@
     [].forEach.call(document.querySelectorAll('.lazy[data-src]'), function (n) { io.observe(n); });
   }
 
-  // Старт: грузим ТОЛЬКО макроцикл текущей недели, чтобы приложение запустилось мгновенно
-  var first = ['macro' + window.Recomp.getCurrentMacro()];
+   // Старт: грузим макроцикл текущей недели
+  // Защита: если app.js еще не загрузился, берем 1-й макроцикл, чтобы сайт не упал
+  var macroNum = (window.Recomp && window.Recomp.getCurrentMacro) ? window.Recomp.getCurrentMacro() : 1;
+  var first = ['macro' + macroNum];
   
   // Раздел из адреса (если есть)
   var hashTarget = sectionFor(decodeURIComponent(location.hash.slice(1)));
@@ -79,7 +81,9 @@
 
   // Запускаем приложение СРАЗУ, как только загрузился текущий макроцикл
   window.Lazy.load(first).then(function () {
-    window.Recomp.boot(); // Приложение отрисовывается моментально
+    if (window.Recomp && window.Recomp.boot) {
+        window.Recomp.boot(); // Приложение отрисовывается моментально
+    }
     
     // А справочники (кулинария, макияж) догружаем В ФОНЕ, чтобы не тормозили старт
     setTimeout(function() {
