@@ -1285,3 +1285,51 @@ details.block:not([open]) > summary {
 body.nav-open {
   overflow: hidden;
 }
+
+/* ============================================================
+   КНОПКА-БУРГЕР И ШАПКА НА МОБИЛЬНЫХ
+   ============================================================ */
+@media (max-width: 960px) {
+  /* Кнопка меню */
+  .menu-btn {
+    display: flex !important;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 30px;
+    height: 30px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 1100; /* поверх шапки */
+    margin-right: 10px;
+  }
+  
+  .menu-btn span, .menu-btn::before, .menu-btn::after {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: var(--fh-accent, #b05a36); /* Терракотовый цвет */
+    border-radius: 2px;
+    transition: all 0.3s ease;
+  }
+
+  /* Анимация в крестик, когда меню открыто */
+  body.nav-open .menu-btn span { opacity: 0; }
+  body.nav-open .menu-btn::before { transform: translateY(8px) rotate(45deg); }
+  body.nav-open .menu-btn::after { transform: translateY(-8px) rotate(-45deg); }
+
+  /* Убедимся, что шапка (topbar) не перекрывает меню */
+  .topbar {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    height: 60px;
+  }
+}
+
+/* На компьютере бургер скрыт */
+@media (min-width: 961px) {
+  .menu-btn { display: none !important; }
+}
