@@ -32,6 +32,40 @@
   padding-top: 40px;
 }
 
+/* ============ SKIP LINK ============ */
+.skip {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translate(-50%, -80px);   /* ← спрятан выше экрана */
+  z-index: 9999;
+  background: var(--fh-accent);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-family: var(--fh-font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 6px 20px rgba(176, 90, 54, 0.3);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+/* Появление при наведении на верхнюю зону экрана */
+body:hover .skip,
+.skip:hover,
+.skip:focus-visible {
+  transform: translate(-50%, 0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Уважаем настройку «уменьшить движение» */
+@media (prefers-reduced-motion: reduce) {
+  .skip { transition: none; }
+}
 
 /* ============ BASE ============ */
 body {
