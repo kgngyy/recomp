@@ -1280,3 +1280,8 @@ details.block:not([open]) > summary {
     pointer-events: auto;
   }
 }
+
+/* Блокируем скролл страницы, когда открыто мобильное меню */
+body.nav-open {
+  overflow: hidden;
+}
