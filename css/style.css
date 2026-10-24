@@ -11,9 +11,16 @@
   --fh-accent-soft: #d4835f;
   --fh-radius-card: 20px;
   --fh-radius-inset: 12px;
+  --bg:#0A0A0A; --panel:#111; --line:#222; --text:#EDEDED; --muted:#9AA0A6;
+  --accent:#16A085; --tea:#52BE80; --water:#AED6F1; --sleep:#34495E;
+  --meal:#27AE60; --cardio:#16A085; --strength:#E74C3C; --pilates:#9B59B6;
+  --mfr:#E67E22; --care:#AF7AC5; --rest:#D5DBDB; --detox:#2C3E50;
+  --lcar:#6E2C00; --cocoa:#784212; --walk:#58D68D; --up:#F39C12;
+  --sauna:#CD6155; --massage:#7D3C98; --pool:#3498DB; --tea2:#52BE80;
   --fh-font-display: "Financier Display", Georgia, "Times New Roman", serif;
   --fh-font-body: "FT Base", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
   --fh-shadow-card: 0 1px 2px rgba(42,43,47,0.04), 0 4px 16px rgba(42,43,47,0.04);
+  
 }
 .main {
   padding: 20px clamp(16px, 4vw, 48px) 60px;
