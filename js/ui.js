@@ -34,48 +34,49 @@
     if (node.tagName === 'DETAILS') node.open = true;
   }
 
-    function go(id, smooth) {
+     function go(id, smooth) {
     var sid = window.Lazy.sectionFor(id);
     
-    // Ждем загрузки секции
     Promise.resolve(sid && window.Lazy.load(sid)).then(function () {
+      var target = document.getElementById(id);
+      if (!target) return;
       
-      // Функция, которая делает сам скролл
-      var doScroll = function() {
+      openAncestors(target);
+
+      var headerOffset = 80;
+      var attempts = 0;
+      var maxAttempts = 20; // 20 раз по 50мс = 1 секунда слежения
+
+      // Эта функция будет вызываться много раз подряд
+      function scrollLoop() {
         var target = document.getElementById(id);
         if (!target) return;
+
+        var elementPosition = target.getBoundingClientRect().top;
+        var offsetPosition = elementPosition + window.pageYOffset - headerOffset;
         
-        openAncestors(target);
-        
-        var headerOffset = 80; 
-        var isMobile = window.innerWidth <= 960;
-        
-        // Основной скролл
-        if (isMobile) {
-          target.scrollIntoView({ behavior: 'auto', block: 'start' });
-          window.scrollBy(0, -headerOffset);
-        } else {
-          var elementPosition = target.getBoundingClientRect().top;
-          var offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-          window.scrollTo({ top: offsetPosition, behavior: 'auto' });
+        // Если мы не на месте (разница больше 5 пикселей) — скроллим
+        if (Math.abs(elementPosition - headerOffset) > 5) {
+            if (smooth && attempts === 0) {
+                // Первый раз плавно
+                window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+            } else {
+                // Последующие разы (если контент сдвинулся) — мгновенно, чтобы не было дерганий
+                window.scrollTo({ top: offsetPosition, behavior: 'auto' });
+            }
         }
 
-        // КОНТРОЛЬНЫЙ ВЫСТРЕЛ: если через 500мс контент догрузился (картинки, таблицы) 
-        // и сдвинул текст, мы плавно доезжаем до него.
-        setTimeout(function() {
-            var currentPos = target.getBoundingClientRect().top;
-            if (Math.abs(currentPos - headerOffset) > 30) {
-                var newOffset = target.getBoundingClientRect().top + window.pageYOffset - headerOffset;
-                window.scrollTo({ top: newOffset, behavior: 'smooth' });
-            }
-        }, 500);
-      };
+        attempts++;
+        if (attempts < maxAttempts) {
+            setTimeout(scrollLoop, 50); // Проверяем каждые 50мс
+        }
+      }
 
-      // Даем браузеру 100мс, чтобы вставить HTML в DOM
-      setTimeout(doScroll, 100);
+      // Запускаем цикл через 100мс (даем DOM обновиться)
+      setTimeout(scrollLoop, 100);
     });
   }
-  document.addEventListener('click', function (e) {
+   document.addEventListener('click', function (e) {
     var a = e.target.closest && e.target.closest('a[href^="#"]');
     if (!a || a.getAttribute('href').length < 2) return;
     var id = decodeURIComponent(a.getAttribute('href').slice(1));
@@ -85,31 +86,12 @@
     // Закрываем меню
     setMenu(false); 
     
-    // ЖДЕМ 350мс, пока анимация выезжающего меню полностью завершится
-    setTimeout(function() {
-      go(id, true);
-    }, 350);
-  });
-
-  document.addEventListener('click', function (e) {
-    var a = e.target.closest && e.target.closest('a[href^="#"]');
-    if (!a || a.getAttribute('href').length < 2) return;
-    var id = decodeURIComponent(a.getAttribute('href').slice(1));
-    e.preventDefault();
-    try { history.pushState(null, '', '#' + id); } catch (err) {}
-    
-    // Принудительно закрываем меню на телефоне при клике на ссылку
-    setMenu(false); 
-    
-    // Небольшая пауза, чтобы меню успело закрыться, и запускаем скролл
-    setTimeout(function() {
-      go(id, true);
-    }, 150);
+    // Запускаем скролл СРАЗУ (функция go теперь сама умеет ждать загрузки контента)
+    go(id, true);
   });
   
   window.addEventListener('popstate', function () { if (location.hash.length > 1) go(decodeURIComponent(location.hash.slice(1)), false); });
   if (location.hash.length > 1) window.addEventListener('load', function () { go(decodeURIComponent(location.hash.slice(1)), false); });
-
   var links = {};
   if (sidebar) {
     [].forEach.call(sidebar.querySelectorAll('a[href^="#"]'), function (a) {
