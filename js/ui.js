@@ -34,42 +34,67 @@
     if (node.tagName === 'DETAILS') node.open = true;
   }
 
-   function go(id, smooth) {
+    function go(id, smooth) {
     var sid = window.Lazy.sectionFor(id);
-    // Ждем загрузки секции, если она ленивая
+    
+    // Ждем загрузки секции
     Promise.resolve(sid && window.Lazy.load(sid)).then(function () {
       
-      // Даем браузеру 100мс, чтобы отрисовать загруженный HTML
+      // Даем время на отрисовку HTML
       setTimeout(function() {
         var target = document.getElementById(id);
         if (!target) return;
-        openAncestors(target);
         
-        var headerOffset = 80; // Высота шапки
-        var elementPosition = target.getBoundingClientRect().top;
-        var offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        openAncestors(target);
 
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: smooth ? 'smooth' : 'auto'
-        });
+        // На мобильных используем scrollIntoView — он надежнее при динамической высоте
+        var isMobile = window.innerWidth <= 960;
+        
+        if (isMobile) {
+          target.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
+          // Небольшой отступ сверху, так как шапка фиксированная
+          window.scrollBy(0, -80);
+        } else {
+          var headerOffset = 80; 
+          var elementPosition = target.getBoundingClientRect().top;
+          var offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+          window.scrollTo({ top: offsetPosition, behavior: smooth ? 'smooth' : 'auto' });
+        }
 
-        // Если картинки или таблицы загрузились чуть позже и сдвинули текст,
-        // мы делаем контрольный выстрел через 300мс
+        // Контрольный скролл, если картинки сдвинули текст
         setTimeout(function() {
-            var pos2 = target.getBoundingClientRect().top;
-            if (Math.abs(pos2 - headerOffset) > 20) { // Если уехали больше чем на 20px
-                window.scrollTo({
-                  top: target.getBoundingClientRect().top + window.pageYOffset - headerOffset,
-                  behavior: 'auto'
-                });
+            if (isMobile) {
+              var pos = target.getBoundingClientRect().top;
+              if (Math.abs(pos - 80) > 20) {
+                 window.scrollBy(0, pos - 80);
+              }
+            } else {
+              var pos2 = target.getBoundingClientRect().top;
+              if (Math.abs(pos2 - 80) > 20) {
+                  window.scrollTo({ top: target.getBoundingClientRect().top + window.pageYOffset - 80, behavior: 'auto' });
+              }
             }
-        }, 300);
+        }, 400);
 
-      }, 100); // Конец setTimeout 100
-      
+      }, 150); 
     });
   }
+
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href^="#"]');
+    if (!a || a.getAttribute('href').length < 2) return;
+    var id = decodeURIComponent(a.getAttribute('href').slice(1));
+    e.preventDefault();
+    try { history.pushState(null, '', '#' + id); } catch (err) {}
+    
+    // Закрываем меню
+    setMenu(false); 
+    
+    // ЖДЕМ 350мс, пока анимация выезжающего меню полностью завершится
+    setTimeout(function() {
+      go(id, true);
+    }, 350);
+  });
 
   document.addEventListener('click', function (e) {
     var a = e.target.closest && e.target.closest('a[href^="#"]');
