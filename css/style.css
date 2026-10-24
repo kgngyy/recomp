@@ -32,40 +32,7 @@
   padding-top: 40px;
 }
 
-/* ============ SKIP LINK ============ */
-.skip {
-  position: fixed;
-  top: 12px;
-  left: 50%;
-  transform: translate(-50%, -80px);   /* ← спрятан выше экрана */
-  z-index: 9999;
-  background: var(--fh-accent);
-  color: #fff;
-  padding: 10px 20px;
-  border-radius: 999px;
-  font-family: var(--fh-font-body);
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-decoration: none;
-  box-shadow: 0 6px 20px rgba(176, 90, 54, 0.3);
-  opacity: 0;
-  pointer-events: none;
-  transition: transform 0.25s ease, opacity 0.25s ease;
-}
 
-/* Появление при наведении на верхнюю зону экрана */
-body:hover .skip,
-.skip:hover,
-.skip:focus-visible {
-  transform: translate(-50%, 0);
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* Уважаем настройку «уменьшить движение» */
-@media (prefers-reduced-motion: reduce) {
-  .skip { transition: none; }
-}
 
 /* ============ BASE ============ */
 body {
@@ -739,3 +706,105 @@ details.block:not([open]) > summary {
   color: var(--fh-accent);
 }
 
+
+/* ============================================================
+   ФИНАЛЬНЫЕ ПРАВКИ: skip-ссылка + «Эта неделя» как стартовая
+   ============================================================ */
+
+/* --- 1. Skip-ссылка: скрыта, появляется при наведении на шапку --- */
+.skip {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translate(-50%, -80px);
+  z-index: 9999;
+  background: var(--fh-accent, #b05a36);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-family: var(--fh-font-body, sans-serif);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 6px 20px rgba(176, 90, 54, 0.3);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.topbar:hover ~ .skip,
+.skip:hover,
+.skip:focus-visible {
+  transform: translate(-50%, 0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skip { transition: none; }
+}
+
+/* --- 2. «Эта неделя» — акцентная стартовая секция --- */
+.sidebar .applink.active {
+  background: rgba(176, 90, 54, 0.1);
+  color: var(--fh-accent, #b05a36);
+  font-weight: 600;
+  border-radius: 8px;
+  padding-left: 10px;
+  margin-left: -10px;
+}
+
+.week-badge {
+  display: inline-block;
+  padding: 6px 14px;
+  background: var(--fh-accent, #b05a36);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.today-card {
+  border-left: 4px solid var(--fh-accent, #b05a36);
+  background: #fff;
+  border-radius: var(--fh-radius-inset, 12px);
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  border: 1px solid var(--fh-border, #e3dbce);
+}
+
+.today-card .dayname {
+  font-family: var(--fh-font-display, Georgia, serif);
+  font-size: 1.3rem;
+  color: var(--fh-accent, #b05a36);
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--fh-border, #e3dbce);
+}
+
+.today-schedule {
+  background: #fff;
+  border: 1px solid var(--fh-border, #e3dbce);
+  border-radius: var(--fh-radius-inset, 12px);
+  padding: 16px 18px;
+  margin-bottom: 16px;
+}
+
+.today-schedule h3 {
+  margin-top: 0;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fh-accent, #b05a36);
+  font-weight: 700;
+}
+
+.today-schedule .sday {
+  background: var(--fh-surface-inset, #faf5ea);
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--fh-border, #e3dbce);
+}
+
+.today-schedule .sday h4 { display: none; }
