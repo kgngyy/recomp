@@ -1,5 +1,5 @@
 /* Service Worker: офлайн-кэш. При изменении файлов проекта увеличьте номер в CACHE. */
-const CACHE = 'recomp-v110';
+const CACHE = 'recomp-v111';
 const ASSETS = [
   './', './index.html', './manifest.json',
   './css/style.css', './js/app.js', './js/lazy.js', './js/ui.js',
