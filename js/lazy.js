@@ -73,16 +73,21 @@
     [].forEach.call(document.querySelectorAll('.lazy[data-src]'), function (n) { io.observe(n); });
   }
 
-  /* Старт: грузим макроцикл текущей недели (и раздел из адреса), затем запускаем приложение */
+    /* Старт: грузим ТОЛЬКО макроцикл текущей недели, чтобы приложение запустилось мгновенно */
   var first = ['macro' + window.Recomp.getCurrentMacro()];
-  ['ref-cooking','ref-exercises','ref-pool','ref-care','ref-beauty'].forEach(function (id) {
-    if (first.indexOf(id) < 0) first.push(id);
-  });
+  
+  // Раздел из адреса (если есть)
   var hashTarget = sectionFor(decodeURIComponent(location.hash.slice(1)));
   if (hashTarget && first.indexOf(hashTarget) < 0) first.push(hashTarget);
 
+  // Запускаем приложение СРАЗУ, как только загрузился текущий макроцикл
   window.Lazy.load(first).then(function () {
-    window.Recomp.boot();
+    window.Recomp.boot(); // <--- Приложение отрисовывается моментально
+    
+    // А справочники (кулинария, макияж) догружаем В ФОНЕ, чтобы не тормозили старт
+    setTimeout(function() {
+      window.Lazy.load(['ref-cooking','ref-exercises','ref-pool','ref-care','ref-beauty']);
+    }, 500);
+    
     observe();
   });
-})();
