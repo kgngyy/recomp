@@ -1028,3 +1028,24 @@ details.block:not([open]) > summary {
 }
 
 .today-schedule .sday h4 { display: none; }
+
+/* ============================================================
+   ВСПЛЫВАЮЩАЯ ПОДСКАЗКА (ДЕТАЛИЗАЦИЯ)
+   ============================================================ */
+.tip {
+  display: none;
+  position: fixed;
+  z-index: 10000;
+  background: #2a2b2f; /* Тёмный фон для контраста */
+  color: #fef9ef;
+  padding: 16px 20px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  font-family: var(--fh-font-body, sans-serif);
+  max-width: 400px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  pointer-events: none; /* Чтобы не мешала кликам */
+  white-space: pre-line; /* Чтобы сохранялись переносы строк */
+  border-left: 4px solid #b05a36; /* Терракотовая полоска */
+}
