@@ -1333,3 +1333,15 @@ body.nav-open {
 @media (min-width: 961px) {
   .menu-btn { display: none !important; }
 }
+
+/* ============================================================
+   ЗАКРЕПЛЕНИЕ ШАПКИ НА МОБИЛЬНЫХ
+   ============================================================ */
+@media (max-width: 960px) {
+  .topbar {
+    position: sticky !important;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05); /* Легкая тень, чтобы отделить от контента */
+  }
+}
