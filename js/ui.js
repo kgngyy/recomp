@@ -14,17 +14,16 @@
       menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
       menuBtn.setAttribute('aria-label', open ? 'Закрыть меню' : 'Открыть меню');
     }
-    if (open && sidebar) {
-      var cur = sidebar.querySelector('a.active');
-      if (cur) cur.scrollIntoView({ block: 'center' });
-    }
   }
   
-  if (menuBtn) menuBtn.addEventListener('click', function () { setMenu(!body.classList.contains('nav-open')); });
+  if (menuBtn) menuBtn.addEventListener('click', function (e) { 
+    e.preventDefault();
+    setMenu(!body.classList.contains('nav-open')); 
+  });
   if (scrim) scrim.addEventListener('click', function () { setMenu(false); });
   
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') { setMenu(false); closeLightbox(); }
+    if (e.key === 'Escape') { setMenu(false); }
   });
   desktop.addEventListener('change', function () { setMenu(false); });
 
@@ -37,6 +36,7 @@
 
   function go(id, smooth) {
     var sid = window.Lazy.sectionFor(id);
+    // Ждем загрузки секции, если она ленивая
     Promise.resolve(sid && window.Lazy.load(sid)).then(function () {
       var target = document.getElementById(id);
       if (!target) return;
@@ -59,8 +59,14 @@
     var id = decodeURIComponent(a.getAttribute('href').slice(1));
     e.preventDefault();
     try { history.pushState(null, '', '#' + id); } catch (err) {}
-    setMenu(false);
-    go(id, true);
+    
+    // Принудительно закрываем меню на телефоне при клике на ссылку
+    setMenu(false); 
+    
+    // Небольшая пауза, чтобы меню успело закрыться, и запускаем скролл
+    setTimeout(function() {
+      go(id, true);
+    }, 150);
   });
   
   window.addEventListener('popstate', function () { if (location.hash.length > 1) go(decodeURIComponent(location.hash.slice(1)), false); });
@@ -114,28 +120,5 @@
     scrollTopBtn.addEventListener('click', function () {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
-  }
-
-  var box = document.createElement('div');
-  box.className = 'lightbox';
-  box.hidden = true;
-  box.setAttribute('role', 'dialog');
-  box.setAttribute('aria-modal', 'true');
-  box.setAttribute('aria-label', 'Просмотр изображения');
-  box.innerHTML = '<button type="button" class="lightbox-close" aria-label="Закрыть">×</button><img alt="">';
-  document.body.appendChild(box);
-  var boxImg = box.querySelector('img');
-  function closeLightbox() { box.hidden = true; }
-  box.addEventListener('click', closeLightbox);
-  document.addEventListener('click', function (e) {
-    var img = e.target.closest && e.target.closest('img[data-zoom]');
-    if (!img) return;
-    boxImg.src = img.currentSrc || img.src;
-    boxImg.alt = img.alt;
-    box.hidden = false;
-  });
-
-  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-    navigator.serviceWorker.register('sw.js').catch(function () {});
   }
 })();
