@@ -1,19 +1,37 @@
-/* ============ FUNCTION HEALTH STYLE · PALETTE ============ */
 :root {
-  --fh-bg: #fef9ef;          /* Parchment — основной фон */
-  --fh-surface: #f5eee1;     /* Aged Paper — карточки, блоки */
-  --fh-surface-dim: #ede8e0; /* чуть темнее для вложенных блоков */
-  --fh-text: #2a2b2f;        /* Ink — основной текст */
+  --fh-bg: #fef9ef;              /* фон страницы */
+  --fh-surface: #ffffff;         /* ← БЕЛЫЙ для карточек (было #f5eee1) */
+  --fh-surface-block: #f5eee1;   /* ← бежевый только для details.block */
+  --fh-surface-inset: #faf5ea;   /* ← вложенные details/таблицы */
+  --fh-text: #2a2b2f;
   --fh-text-muted: #515151;
-  --fh-border: #d1c9bf;      /* Warm Taupe */
-  --fh-accent: #b05a36;      /* Terracotta Seal — кнопки, акценты */
-  --fh-accent-soft: #d4835f; /* при наведении */
-  --fh-radius-card: 24px;
-  --fh-radius-pill: 9999px;
+  --fh-border: #e3dbce;          /* мягче, чем было */
+  --fh-border-strong: #d1c9bf;
+  --fh-accent: #b05a36;
+  --fh-accent-soft: #d4835f;
+  --fh-radius-card: 20px;
+  --fh-radius-inset: 12px;
   --fh-font-display: "Financier Display", Georgia, "Times New Roman", serif;
   --fh-font-body: "FT Base", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-  --fh-shadow: 0 2px 12px rgba(42, 43, 47, 0.04);
+  --fh-shadow-card: 0 1px 2px rgba(42,43,47,0.04), 0 4px 16px rgba(42,43,47,0.04);
 }
+.main {
+  padding: 20px clamp(16px, 4vw, 48px) 60px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Каждая секция-страница — как отдельный лист */
+.page {
+  padding: 8px 0 40px;
+}
+
+.page + .page {
+  border-top: 1px solid var(--fh-border);
+  margin-top: 40px;
+  padding-top: 40px;
+}
+
 
 /* ============ BASE ============ */
 body {
@@ -118,69 +136,107 @@ a:hover { color: var(--fh-accent-soft); }
 
 /* Details-блоки (макроциклы) */
 details.block {
+  background: var(--fh-surface-block);
+  border-radius: var(--fh-radius-card);
+  border: 1px solid var(--fh-border);
+  border-left: 4px solid var(--fh-accent);   /* ← акцентная полоса */
+  margin: 0 0 20px;                          /* ← отступ между блоками 1–5 */
   padding: 0;
   overflow: hidden;
+  box-shadow: var(--fh-shadow-card);
 }
 
 details.block > summary {
-  padding: 1.1rem 1.6rem;
-  background: var(--fh-surface);
-  cursor: pointer;
+  padding: 16px 22px;
   font-family: var(--fh-font-body);
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+  color: var(--fh-text);
+  cursor: pointer;
   list-style: none;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  transition: background 0.2s;
+  gap: 10px;
+  background: transparent;
 }
 
 details.block > summary::-webkit-details-marker { display: none; }
 
+/* Кружок +/− */
 details.block > summary::before {
   content: "+";
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 24px; height: 24px;
   border-radius: 50%;
   background: var(--fh-accent);
-  color: var(--fh-bg);
+  color: #fff;
   font-size: 0.85rem;
-  font-weight: 400;
+  font-weight: 500;
   flex-shrink: 0;
 }
-
 details.block[open] > summary::before { content: "−"; }
 
 details.block[open] > summary {
-  background: var(--fh-surface-dim);
+  background: rgba(176, 90, 54, 0.06);       /* лёгкая заливка шапки */
   border-bottom: 1px solid var(--fh-border);
 }
 
 .block-body {
-  padding: 1.2rem 1.6rem 1.6rem;
+  padding: 20px 22px 24px;
+  background: var(--fh-surface-block);
 }
 
-/* Вложенные details (покупки, меню) */
-details:not(.block) {
-  background: var(--fh-bg);
-  border-radius: 16px;
-  padding: 0.8rem 1.1rem;
-  margin: 0.8rem 0;
+/* Карточки внутри блоков — БЕЛЫЕ, с границей */
+.card {
+  background: var(--fh-surface);              /* #ffffff */
   border: 1px solid var(--fh-border);
+  border-radius: var(--fh-radius-inset);
+  padding: 18px 20px;
+  margin-bottom: 14px;
+  box-shadow: 0 1px 2px rgba(42,43,47,0.03);
+}
+
+.card h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-family: var(--fh-font-body);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fh-accent);                    /* ← акцент для заголовков карточек */
+  font-weight: 700;
+}
+
+/* Вложенные details (меню, покупки) — светлее фона блока */
+details:not(.block) {
+  background: var(--fh-surface);
+  border: 1px solid var(--fh-border);
+  border-radius: var(--fh-radius-inset);
+  padding: 0;
+  margin: 14px 0;
+  overflow: hidden;
 }
 
 details:not(.block) > summary {
-  cursor: pointer;
+  padding: 12px 16px;
+  font-size: 0.88rem;
   font-weight: 600;
-  font-size: 0.92rem;
   color: var(--fh-text);
+  cursor: pointer;
   list-style: none;
+  background: var(--fh-surface-inset);        /* лёгкий бежевый */
+  border-bottom: 1px solid transparent;
 }
 details:not(.block) > summary::-webkit-details-marker { display: none; }
+details:not(.block)[open] > summary {
+  border-bottom-color: var(--fh-border);
+}
+details:not(.block) > *:not(summary) {
+  padding: 14px 16px;                          /* воздух внутри */
+}
 
 /* ============ TABLES ============ */
 .tbl-wrap {
@@ -327,63 +383,46 @@ button,
 /* ============ SCHEDULE ============ */
 .schedule {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 12px;
-  margin: 1rem 0;
+  margin: 16px 0 24px;
 }
 
 .sday {
-  background: var(--fh-bg);
+  background: var(--fh-surface);              /* белый день на бежевом блоке */
   border: 1px solid var(--fh-border);
-  border-radius: 16px;
-  padding: 0.7rem;
+  border-radius: var(--fh-radius-inset);
+  padding: 12px 14px;
 }
 
 .sday h4 {
   font-family: var(--fh-font-body);
-  font-weight: 600;
-  font-size: 0.75rem;
+  font-weight: 700;
+  font-size: 0.72rem;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   color: var(--fh-accent);
-  margin: 0 0 0.5rem;
-  padding-bottom: 0.3rem;
+  margin: 0 0 8px;
+  padding-bottom: 6px;
   border-bottom: 1px solid var(--fh-border);
 }
 
-.sday ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
+.sday ul { list-style: none; padding: 0; margin: 0; }
 
 .ev {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
+  gap: 6px;
   font-size: 0.72rem;
-  padding: 3px 6px;
-  margin-bottom: 2px;
-  border-radius: 6px;
-  background: var(--c, #e0dcd3);
-  color: var(--t, #2a2b2f);
-  line-height: 1.3;
+  padding: 3px 0;
+  line-height: 1.35;
+  border-bottom: 1px dashed rgba(209,201,191,0.5);   /* ← разделитель */
 }
+.ev:last-child { border-bottom: none; }
 
-.ev b {
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-right: 4px;
-}
-
-.ev time {
-  font-size: 0.65rem;
-  opacity: 0.8;
-  white-space: nowrap;
-}
-
+.ev b { font-weight: 600; color: var(--fh-text); }
+.ev time { font-size: 0.66rem; color: var(--fh-text-muted); white-space: nowrap; }
 /* ============ SHOPPING ============ */
 .shop-wrap {
   display: flex;
@@ -514,3 +553,155 @@ button,
   color: var(--fh-text-muted);
   margin: 14px 0 4px;
 }
+
+
+.block-body h3 {
+  font-family: var(--fh-font-display);
+  font-weight: 400;
+  font-size: 1.15rem;
+  color: var(--fh-text);
+  margin: 22px 0 10px;
+  padding-left: 12px;
+  border-left: 3px solid var(--fh-accent);    /* ← акцентная черта */
+}
+.block-body h3:first-child { margin-top: 0; }
+
+.block-body .link-ref {
+  font-size: 0.82rem;
+  color: var(--fh-text-muted);
+  background: var(--fh-surface-inset);
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin: 10px 0;
+}
+
+.tbl-wrap {
+  background: var(--fh-surface);
+  border: 1px solid var(--fh-border);
+  border-radius: var(--fh-radius-inset);
+  overflow: hidden;
+  margin: 12px 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+th {
+  background: var(--fh-surface-inset);
+  font-weight: 700;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--fh-accent);
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--fh-border);
+}
+
+td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--fh-border);
+}
+
+tbody tr:nth-child(even) td,
+table tr:nth-child(even) td {
+  background: #fcf8f1;                        /* ← лёгкая зебра */
+}
+
+tr:last-child td { border-bottom: none; }
+
+.legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+  margin: 16px 0;
+  padding: 18px;
+  background: var(--fh-surface);
+  border: 1px solid var(--fh-border);
+  border-radius: var(--fh-radius-card);
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--fh-surface-inset);
+  border-radius: 10px;
+  border: 1px solid var(--fh-border);
+  font-size: 0.8rem;
+}
+
+.chip .sw {
+  width: 12px; height: 12px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.chip b { font-weight: 600; }
+.chip .desc {
+  font-size: 0.7rem;
+  color: var(--fh-text-muted);
+  margin-left: auto;
+  text-align: right;
+}
+
+/* Каждый макроцикл — отдельная страница с явным верхним отступом */
+section.page[id^="macro"] {
+  padding: 32px 0;
+}
+section.page[id^="macro"] + section.page[id^="macro"] {
+  border-top: 2px solid var(--fh-border);
+}
+
+@media (max-width: 640px) {
+  .schedule {
+    grid-template-columns: 1fr;                /* дни в столбик */
+  }
+  .sday {
+    padding: 10px 12px;
+  }
+  .block-body {
+    padding: 14px 14px 18px;
+  }
+  details.block > summary {
+    padding: 12px 14px;
+  }
+  .grid2, .grid3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Заголовок раздела блока (Блок 1 · Расписание) */
+details.block > summary {
+  border-radius: var(--fh-radius-card) var(--fh-radius-card) 0 0;
+}
+details.block:not([open]) > summary {
+  border-radius: var(--fh-radius-card);
+}
+
+/* Отделяем h2 страницы от первой карточки */
+.page > h2 {
+  margin-top: 0;
+}
+
+/* Тэги-цели на обложке (top) */
+.tag {
+  display: inline-block;
+  padding: 6px 14px;
+  background: var(--fh-surface);
+  border: 1px solid var(--fh-border);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  margin: 0 6px 6px 0;
+  color: var(--fh-text);
+}
+
+/* Блок «Ожидание за макроцикл» — выделить */
+.grid2 .card h3 {
+  color: var(--fh-accent);
+}
+
