@@ -26,7 +26,6 @@
         node.removeAttribute('aria-busy');
         delete pending[id];
         document.dispatchEvent(new CustomEvent('lazy:loaded', { detail: { id: id } }));
-        // дать браузеру пересчитать layout перед тем, как резолвить промис
         return new Promise(function (r) { requestAnimationFrame(function () { r(); }); });
       })
       .catch(function () {
@@ -38,7 +37,6 @@
     return pending[id];
   }
 
-  /* id якоря (macro3-home, ref-pool …) -> id секции, если она ещё не загружена */
   function sectionFor(anchorId) {
     if (!anchorId) return null;
     var m = anchorId.match(/^(macro\d+)(?:-|$)/);
@@ -60,7 +58,6 @@
     load(id);
   });
 
-  /* Остальные секции подгружаем заранее, когда пользователь подходит к ним ближе чем на ~1 экран */
   function observe() {
     if (!('IntersectionObserver' in window)) return;
     var io = new IntersectionObserver(function (entries) {
@@ -73,7 +70,7 @@
     [].forEach.call(document.querySelectorAll('.lazy[data-src]'), function (n) { io.observe(n); });
   }
 
-    /* Старт: грузим ТОЛЬКО макроцикл текущей недели, чтобы приложение запустилось мгновенно */
+  // Старт: грузим ТОЛЬКО макроцикл текущей недели, чтобы приложение запустилось мгновенно
   var first = ['macro' + window.Recomp.getCurrentMacro()];
   
   // Раздел из адреса (если есть)
@@ -82,7 +79,7 @@
 
   // Запускаем приложение СРАЗУ, как только загрузился текущий макроцикл
   window.Lazy.load(first).then(function () {
-    window.Recomp.boot(); // <--- Приложение отрисовывается моментально
+    window.Recomp.boot(); // Приложение отрисовывается моментально
     
     // А справочники (кулинария, макияж) догружаем В ФОНЕ, чтобы не тормозили старт
     setTimeout(function() {
@@ -91,3 +88,4 @@
     
     observe();
   });
+})();
