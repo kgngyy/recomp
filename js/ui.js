@@ -8,25 +8,29 @@
   var sidebar = document.getElementById('sidebar');
   var desktop = window.matchMedia('(min-width: 960px)');
 
-  /* ---------- мобильное меню ---------- */
+  /* ---------- мобильное меню (Исправлено) ---------- */
   function setMenu(open) {
     body.classList.toggle('nav-open', open);
-    scrim.hidden = !open;
-    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
-    menuBtn.setAttribute('aria-label', open ? 'Закрыть меню' : 'Открыть меню');
-    if (open) {
+    if (scrim) scrim.hidden = !open;
+    if (menuBtn) {
+      menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      menuBtn.setAttribute('aria-label', open ? 'Закрыть меню' : 'Открыть меню');
+    }
+    if (open && sidebar) {
       var cur = sidebar.querySelector('a.active');
       if (cur) cur.scrollIntoView({ block: 'center' });
     }
   }
-  menuBtn.addEventListener('click', function () { setMenu(!body.classList.contains('nav-open')); });
-  scrim.addEventListener('click', function () { setMenu(false); });
+  
+  if (menuBtn) menuBtn.addEventListener('click', function () { setMenu(!body.classList.contains('nav-open')); });
+  if (scrim) scrim.addEventListener('click', function () { setMenu(false); });
+  
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') { setMenu(false); closeLightbox(); }
   });
   desktop.addEventListener('change', function () { setMenu(false); });
 
-  /* ---------- переходы по якорям (с подгрузкой секции и раскрытием блоков) ---------- */
+  /* ---------- переходы по якорям с фиксом скролла (Исправлено) ---------- */
   function openAncestors(node) {
     for (var p = node.parentElement; p; p = p.parentElement) {
       if (p.tagName === 'DETAILS') p.open = true;
@@ -35,61 +39,46 @@
   }
 
   function go(id, smooth) {
-  var sid = window.Lazy.sectionFor(id);
-  Promise.resolve(sid && window.Lazy.load(sid)).then(function () {
-    var target = document.getElementById(id);
-    if (!target) return;
-    openAncestors(target);
+    var sid = window.Lazy.sectionFor(id);
+    Promise.resolve(sid && window.Lazy.load(sid)).then(function () {
+      var target = document.getElementById(id);
+      if (!target) return;
+      openAncestors(target);
+      
+      // Вычисляем высоту липкой шапки (допустим, она 70px, либо берем динамически)
+      var headerOffset = 80; 
+      var elementPosition = target.getBoundingClientRect().top;
+      var offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
-    target.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
-
-    // страховка: если smooth «застрял» — дотянуть мгновенно
-    if (smooth) {
-      var tries = 0;
-      var check = function () {
-        var top = target.getBoundingClientRect().top;
-        // считаем «доехали», если верх секции в пределах ±80px от верха вьюпорта
-        if (Math.abs(top) <= 80 || tries++ > 8) return;
-        setTimeout(check, 120);
-      };
-      setTimeout(check, 300);
-    }
-  });
-}
-      // страховка: если layout ещё «достраивался», дотянем после перерисовки
-      requestAnimationFrame(function () {
-        var r = target.getBoundingClientRect();
-        if (r.height < 8) return;                 // секция всё ещё пустая — не трогаем
-        var delta = r.top;                        // если уехали от цели > 40px
-        if (Math.abs(delta) > 40) {
-          target.scrollIntoView({ behavior: 'auto', block: 'start' });
-          }
-        });
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: smooth ? 'smooth' : 'auto'
       });
-    }
+    });
+  }
 
   document.addEventListener('click', function (e) {
-  var a = e.target.closest && e.target.closest('a[href^="#"]');
-  if (!a || a.getAttribute('href').length < 2) return;
-  var id = decodeURIComponent(a.getAttribute('href').slice(1));
-  e.preventDefault();
-  try { history.pushState(null, '', '#' + id); } catch (err) { }
-  setMenu(false);
-    setTimeout(function () { go(id, true); }, 50);
-  // дать браузеру закрыть меню/scrim и пересчитать layout, затем скроллить
-  requestAnimationFrame(function () {
-    requestAnimationFrame(function () { go(id, true); });
+    var a = e.target.closest && e.target.closest('a[href^="#"]');
+    if (!a || a.getAttribute('href').length < 2) return;
+    var id = decodeURIComponent(a.getAttribute('href').slice(1));
+    e.preventDefault();
+    try { history.pushState(null, '', '#' + id); } catch (err) {}
+    setMenu(false);
+    go(id, true);
   });
-});
+  
   window.addEventListener('popstate', function () { if (location.hash.length > 1) go(decodeURIComponent(location.hash.slice(1)), false); });
   if (location.hash.length > 1) window.addEventListener('load', function () { go(decodeURIComponent(location.hash.slice(1)), false); });
 
   /* ---------- активный пункт меню ---------- */
   var links = {};
-  [].forEach.call(sidebar.querySelectorAll('a[href^="#"]'), function (a) {
-    var id = a.getAttribute('href').slice(1);
-    if (!/-(home|office)$/.test(id)) links[id] = a;
-  });
+  if (sidebar) {
+    [].forEach.call(sidebar.querySelectorAll('a[href^="#"]'), function (a) {
+      var id = a.getAttribute('href').slice(1);
+      if (!/-(home|office)$/.test(id)) links[id] = a;
+    });
+  }
+  
   var ticking = false;
   function updateActive() {
     ticking = false;
@@ -103,24 +92,34 @@
       if (on) links[id].setAttribute('aria-current', 'location'); else links[id].removeAttribute('aria-current');
     });
     var top = document.getElementById('scrollTop');
-    top.classList.toggle('show', window.scrollY > 600);
+    if (top) top.classList.toggle('show', window.scrollY > 600);
+    
     var m = active && active.match(/^macro(\d+)$/);
-    [].forEach.call(sidebar.querySelectorAll('.nav-macro'), function (d) {
-      if (m && d.dataset.macro === m[1] && !d.dataset.touched) d.open = true;
-    });
+    if (sidebar) {
+      [].forEach.call(sidebar.querySelectorAll('.nav-macro'), function (d) {
+        if (m && d.dataset.macro === m[1] && !d.dataset.touched) d.open = true;
+      });
+    }
   }
+  
   window.addEventListener('scroll', function () {
     if (!ticking) { ticking = true; requestAnimationFrame(updateActive); }
   }, { passive: true });
-  [].forEach.call(sidebar.querySelectorAll('.nav-macro'), function (d) {
-    d.querySelector('summary').addEventListener('click', function () { d.dataset.touched = '1'; });
-  });
+  
+  if (sidebar) {
+    [].forEach.call(sidebar.querySelectorAll('.nav-macro'), function (d) {
+      d.querySelector('summary').addEventListener('click', function () { d.dataset.touched = '1'; });
+    });
+  }
   document.addEventListener('lazy:loaded', updateActive);
   updateActive();
 
-  document.getElementById('scrollTop').addEventListener('click', function () {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
+  var scrollTopBtn = document.getElementById('scrollTop');
+  if (scrollTopBtn) {
+    scrollTopBtn.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
 
   /* ---------- лайтбокс для схем ---------- */
   var box = document.createElement('div');
@@ -142,8 +141,7 @@
     box.hidden = false;
   });
 
-  /* ---------- service worker ---------- */
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-    navigator.serviceWorker.register('sw.js').catch(function () { /* офлайн-режим недоступен */ });
+    navigator.serviceWorker.register('sw.js').catch(function () {});
   }
 })();
