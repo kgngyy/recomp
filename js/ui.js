@@ -40,46 +40,41 @@
     // Ждем загрузки секции
     Promise.resolve(sid && window.Lazy.load(sid)).then(function () {
       
-      // Даем время на отрисовку HTML
-      setTimeout(function() {
+      // Функция, которая делает сам скролл
+      var doScroll = function() {
         var target = document.getElementById(id);
         if (!target) return;
         
         openAncestors(target);
-
-        // На мобильных используем scrollIntoView — он надежнее при динамической высоте
+        
+        var headerOffset = 80; 
         var isMobile = window.innerWidth <= 960;
         
+        // Основной скролл
         if (isMobile) {
-          target.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
-          // Небольшой отступ сверху, так как шапка фиксированная
-          window.scrollBy(0, -80);
+          target.scrollIntoView({ behavior: 'auto', block: 'start' });
+          window.scrollBy(0, -headerOffset);
         } else {
-          var headerOffset = 80; 
           var elementPosition = target.getBoundingClientRect().top;
           var offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-          window.scrollTo({ top: offsetPosition, behavior: smooth ? 'smooth' : 'auto' });
+          window.scrollTo({ top: offsetPosition, behavior: 'auto' });
         }
 
-        // Контрольный скролл, если картинки сдвинули текст
+        // КОНТРОЛЬНЫЙ ВЫСТРЕЛ: если через 500мс контент догрузился (картинки, таблицы) 
+        // и сдвинул текст, мы плавно доезжаем до него.
         setTimeout(function() {
-            if (isMobile) {
-              var pos = target.getBoundingClientRect().top;
-              if (Math.abs(pos - 80) > 20) {
-                 window.scrollBy(0, pos - 80);
-              }
-            } else {
-              var pos2 = target.getBoundingClientRect().top;
-              if (Math.abs(pos2 - 80) > 20) {
-                  window.scrollTo({ top: target.getBoundingClientRect().top + window.pageYOffset - 80, behavior: 'auto' });
-              }
+            var currentPos = target.getBoundingClientRect().top;
+            if (Math.abs(currentPos - headerOffset) > 30) {
+                var newOffset = target.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+                window.scrollTo({ top: newOffset, behavior: 'smooth' });
             }
-        }, 400);
+        }, 500);
+      };
 
-      }, 150); 
+      // Даем браузеру 100мс, чтобы вставить HTML в DOM
+      setTimeout(doScroll, 100);
     });
   }
-
   document.addEventListener('click', function (e) {
     var a = e.target.closest && e.target.closest('a[href^="#"]');
     if (!a || a.getAttribute('href').length < 2) return;
