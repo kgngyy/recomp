@@ -1,4 +1,3 @@
-/* Интерфейс: мобильное меню, активный пункт навигации, переходы по якорям, лайтбокс, service worker. */
 (function () {
   'use strict';
 
@@ -8,7 +7,6 @@
   var sidebar = document.getElementById('sidebar');
   var desktop = window.matchMedia('(min-width: 960px)');
 
-  /* ---------- мобильное меню (Исправлено) ---------- */
   function setMenu(open) {
     body.classList.toggle('nav-open', open);
     if (scrim) scrim.hidden = !open;
@@ -30,7 +28,6 @@
   });
   desktop.addEventListener('change', function () { setMenu(false); });
 
-  /* ---------- переходы по якорям с фиксом скролла (Исправлено) ---------- */
   function openAncestors(node) {
     for (var p = node.parentElement; p; p = p.parentElement) {
       if (p.tagName === 'DETAILS') p.open = true;
@@ -45,7 +42,6 @@
       if (!target) return;
       openAncestors(target);
       
-      // Вычисляем высоту липкой шапки (допустим, она 70px, либо берем динамически)
       var headerOffset = 80; 
       var elementPosition = target.getBoundingClientRect().top;
       var offsetPosition = elementPosition + window.pageYOffset - headerOffset;
@@ -70,7 +66,6 @@
   window.addEventListener('popstate', function () { if (location.hash.length > 1) go(decodeURIComponent(location.hash.slice(1)), false); });
   if (location.hash.length > 1) window.addEventListener('load', function () { go(decodeURIComponent(location.hash.slice(1)), false); });
 
-  /* ---------- активный пункт меню ---------- */
   var links = {};
   if (sidebar) {
     [].forEach.call(sidebar.querySelectorAll('a[href^="#"]'), function (a) {
@@ -121,7 +116,6 @@
     });
   }
 
-  /* ---------- лайтбокс для схем ---------- */
   var box = document.createElement('div');
   box.className = 'lightbox';
   box.hidden = true;
